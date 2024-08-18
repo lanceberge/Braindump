@@ -30,6 +30,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.633.0",
 		"@sveltejs/adapter-static": "^3.0.4"
 	}
 }
