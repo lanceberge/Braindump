@@ -5,5 +5,5 @@
 </script>
 
 {#each data.files as file}
-  <li>{file}</li>
+  <li><a href="/braindump/{file}">{file}</a></li>
 {/each}
