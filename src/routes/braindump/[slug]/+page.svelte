@@ -1,18 +1,7 @@
 <script lang="ts">
-  import { error } from '@sveltejs/kit';
-  import type { PageLoad } from './$types';
+  import type { PageData } from './$types'
 
-  export const load: PageLoad = async ({ params, fetch }) => {
-    const response = await fetch(`/s3/${params.slug}.html`);
-
-    if (response.ok) {
-      return {
-        content: await response.text()
-      };
-    }
-
-    throw error(404, 'File not found');
-  };
+  export let data: PageData
 </script>
 
-<article>{@html content}</article>
+<div>{@html data.content}</div>
