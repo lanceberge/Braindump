@@ -23,8 +23,15 @@ export const load: PageServerLoad = async ({ params }) => {
       throw error(404, 'File not found')
     }
 
-    // const content = await streamToString(response.Body as ReadableStream)
-    const content: string = await response.Body.transformToString()
+    // TODO get images to work
+    const body: string = await response.Body.transformToString()
+
+    // substitute the org-roam id links for links to the routes
+    const content = body.replace(/href="id:[^"]*">([^<]*)/g, (_, p1) => {
+      // convert to lowercase and replace spaces or newlines (the line gets split) with _
+      return `href="/braindump/${p1.toLowerCase().replace(/[\s\n]/g, '_')}.html">${p1}`
+    })
+
     return { content }
   } catch (err) {
     console.log(err)
