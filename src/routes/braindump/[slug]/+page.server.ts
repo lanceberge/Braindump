@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ params }) => {
     // substitute the org-roam id links for links to the routes
     const content = body.replace(/href="id:[^"]*">([^<]*)/g, (_, p1) => {
       // convert to lowercase and replace spaces or newlines (the line gets split) with _
-      return `href="/braindump/${p1.toLowerCase().replace(/[\s\n]/g, '_')}.html">${p1}`
+      return `href="/braindump/${p1.replace(/[\s\n]/g, '_')}.html">${p1}`
     })
 
     return { content }
