@@ -8,21 +8,19 @@ export const load: PageServerLoad = async () => {
   })
 
   const response = await s3Client.send(command)
-
-  const filesSet: Set<string> = new Set()
-  const filePrefixes: string[] = []
-
   const filenames = response.Contents?.map((item) => item.Key) ?? []
+
+  const filenameToFilePrefixMap: Map<string, string> = new Map()
+
   for (const filename of filenames) {
     const split: string[] = filename.split('.')
     if (split.at(-1) === 'html') {
-      filesSet.add(filename)
-      filePrefixes.push(split[0])
+      const filePrefix: string = split[0].replaceAll('_', ' ')
+      filenameToFilePrefixMap.set(filename, filePrefix)
     }
   }
 
-  // TODO replace all _ with spaces. Then we'll need to return as map of filename: link
   return {
-    files: filePrefixes
+    filenamesAndFilePrefixes: Array.from(filenameToFilePrefixMap.entries())
   }
 }
