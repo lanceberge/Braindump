@@ -1,0 +1,5 @@
+* Braindump
+
+  WIP Frontend for https://github.com/lanceberge/Braindump
+
+  Goal: To publicize my [[https://www.orgroam.com/][org-roam]] notes with a frontend
