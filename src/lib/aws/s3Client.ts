@@ -9,3 +9,5 @@ export const s3Client = new S3Client({
     secretAccessKey: AWS_SECRET_ACCESS_KEY
   }
 })
+
+export const S3_BUCKET = 'braindump-bucket'

@@ -3,17 +3,21 @@ import { GetObjectCommand, type GetObjectCommandOutput } from '@aws-sdk/client-s
 import type { PageServerLoad } from './$types'
 import { AWS_BUCKET_NAME } from '$env/static/private'
 import { error } from '@sveltejs/kit'
+import { filenameToFilePrefixMap } from '$lib/filenameToPrefixMap'
 
-// TODO prevent this from being called if the page was already loaded
 export const load: PageServerLoad = async ({ params }) => {
-  // TODO find if the file is cached in the CDN
+  const filename: string = params.slug
 
+  if (!filenameToFilePrefixMap.has(filename)) {
+    // TODO redirect?
+    throw error(500, 'File not found')
+  }
+
+  // TODO find if the file is cached in the CDN
   const command = new GetObjectCommand({
     Bucket: AWS_BUCKET_NAME,
 
-    // TODO make sure you can only find things that are fetched from s3 already
-    // the routes that aren't already fetched should be in a hashset and checked for there
-    Key: params.slug
+    Key: filename
   })
 
   try {
@@ -28,6 +32,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
     // substitute the org-roam id links for links to the routes
     const content = body.replace(/href="id:[^"]*">([^<]*)/g, (_, p1) => {
+      // TODO configure links to load on hover
       // convert to lowercase and replace spaces or newlines (the line gets split) with _
       return `href="/braindump/${p1.replace(/[\s\n]/g, '_')}.html">${p1}`
     })
