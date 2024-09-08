@@ -10,4 +10,6 @@ export const s3Client = new S3Client({
   }
 })
 
-export const S3_BUCKET = 'braindump-bucket'
+export const S3_BUCKET: string = 'braindump-bucket'
+
+export const S3_IMAGE_PREFIX: string = `https://${S3_BUCKET}.s3.us-east-2.amazonaws.com/img/`
