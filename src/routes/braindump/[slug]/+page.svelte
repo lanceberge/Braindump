@@ -4,4 +4,4 @@
   export let data: PageData
 </script>
 
-<div>{@html data.content}</div>
+<div class="loaded-content">{@html data.content}</div>
