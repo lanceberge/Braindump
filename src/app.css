@@ -41,4 +41,8 @@
   .loaded-content li {
     @apply my-1;
   }
+
+  .loaded-content a {
+    @apply text-blue-700;
+  }
 }
