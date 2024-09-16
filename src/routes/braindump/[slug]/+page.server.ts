@@ -27,19 +27,16 @@ export const load: PageServerLoad = async ({ params }) => {
       throw error(404, 'File not found')
     }
 
-    // TODO get images to work
     const body: string = await response.Body.transformToString()
 
     // substitute the org-roam id links for links to the routes
     const content = body
       .replace(/href="id:[^"]*">([^<]*)/g, (_, p1) => {
-        // TODO configure links to load on hover
         // convert to lowercase and replace spaces or newlines (the line gets split) with _
         return `href="/braindump/${p1.replace(/[\s\n]/g, '_')}.html">${p1}`
-
-        // Pandoc converts the images to use the local paths. We need to find them
-        // from our s3 bucket. So we insert the S3_IMAGE_PREFIX to the links
       })
+      // Pandoc converts the images to use the local paths. We need to find them
+      // from our s3 bucket. So we insert the S3_IMAGE_PREFIX to the links
       .replace(/img src="img\//g, `img loading="lazy" src="${S3_IMAGE_PREFIX}`)
 
     return { content }
