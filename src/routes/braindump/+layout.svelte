@@ -67,7 +67,8 @@
     </nav>
   {/if}
 
-  <div class="flex-1 p-4 md:w-4/5">
+  <!-- TODO add right padding -->
+  <div class="flex-1 p-4">
     <slot />
   </div>
 </div>

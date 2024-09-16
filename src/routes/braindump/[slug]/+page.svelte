@@ -22,7 +22,9 @@
   />
 </svelte:head>
 
-<div class="loaded-content max-w-none prose prose-sm sm:prose lg:prose-lg xl:prose-x">
+<h1 class="text-4xl">{data.filePrefix}</h1>
+
+<div class="loaded-content max-w-none prose prose-sm sm:prose lg:prose-lg">
   {@html data.content}
 </div>
 

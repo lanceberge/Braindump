@@ -13,7 +13,6 @@ export const load: PageServerLoad = async ({ params }) => {
     throw error(500, 'File not found')
   }
 
-  // TODO find if the file is cached in the CDN
   const command = new GetObjectCommand({
     Bucket: AWS_BUCKET_NAME,
 
@@ -39,7 +38,11 @@ export const load: PageServerLoad = async ({ params }) => {
       // from our s3 bucket. So we insert the S3_IMAGE_PREFIX to the links
       .replace(/img src="img\//g, `img loading="lazy" src="${S3_IMAGE_PREFIX}`)
 
-    return { content }
+    const filePrefix: string = ' '
+    return {
+      filePrefix: filenameToFilePrefixMap.get(filename),
+      content
+    }
   } catch (err) {
     console.log(err)
     throw error(500, 'Error fetching the file')
