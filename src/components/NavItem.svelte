@@ -4,7 +4,7 @@
   export let href: string
   export let name: string
 
-  $: isActive = $page.url.pathname === href
+  $: isActive = href !== '/' ? $page.url.pathname.startsWith(href) : $page.url.pathname === '/'
 </script>
 
 <li>
