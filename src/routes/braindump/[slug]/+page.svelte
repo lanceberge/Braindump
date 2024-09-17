@@ -20,9 +20,8 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/xcode.min.css"
   />
+  <title>{data.filePrefix}</title>
 </svelte:head>
-
-TODO set the tab title
 
 <h1 class="text-4xl font-bold my-3">{data.filePrefix}</h1>
 
@@ -38,10 +37,15 @@ TODO set the tab title
     display: inline;
     max-width: 100%;
   }
+
   .loaded-content :global(li) {
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
+  }
+
+  .loaded-content :global(li p) {
+    display: inline;
   }
 </style>
