@@ -81,19 +81,26 @@
       {@html data.content}
     </div>
   </div>
-
   <nav
     class="table-of-contents sticky top-20 right-4 p-4 bg-white shadow-lg rounded-lg max-w-xs ml-4 h-fit"
   >
     <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
     <ul class="space-y-2">
       {#each headings as heading}
-        <li
-          class="cursor-pointer {heading.level === 1 ? 'font-bold' : 'pl-4'}
-                 {activeId === heading.id ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}"
-          on:click={() => scrollToHeading(heading.id)}
-        >
-          {heading.text}
+        <li>
+          <a
+            href="#{heading.id}"
+            class="block {heading.level === 1 ? 'font-bold' : 'pl-4'}
+                   {activeId === heading.id
+              ? 'text-blue-600'
+              : 'text-gray-700 hover:text-blue-600'}"
+            on:click|preventDefault={(e) => {
+              e.preventDefault()
+              scrollToHeading(heading.id)
+            }}
+          >
+            {heading.text}
+          </a>
         </li>
       {/each}
     </ul>
@@ -108,15 +115,17 @@
     display: inline;
     max-width: 100%;
   }
-
   .loaded-content :global(li) {
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
   }
-
   .loaded-content :global(li p) {
     display: inline;
+  }
+  .table-of-contents a {
+    text-decoration: none;
+    display: block;
   }
 </style>
