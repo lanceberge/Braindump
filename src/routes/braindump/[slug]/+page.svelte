@@ -74,7 +74,7 @@
   <title>{data.filePrefix}</title>
 </svelte:head>
 
-<div class="flex">
+<div class="flex flex-col lg:flex-row">
   <div class="flex-grow">
     <h1 class="text-4xl font-bold my-3">{data.filePrefix}</h1>
     <div class="loaded-content max-w-none prose prose-sm sm:prose lg:prose-lg">
@@ -82,7 +82,7 @@
     </div>
   </div>
   <nav
-    class="table-of-contents sticky top-20 right-4 p-4 bg-white shadow-lg rounded-lg max-w-xs ml-4 h-fit"
+    class="table-of-contents hidden lg:block sticky top-20 right-4 p-4 bg-white shadow-lg rounded-lg max-w-xs ml-4 h-fit"
   >
     <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
     <ul class="space-y-2">
