@@ -120,12 +120,39 @@
     word-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
+    padding-left: 0.5em;
+    text-indent: -0.5em;
   }
   .loaded-content :global(li p) {
     display: inline;
   }
-  .table-of-contents a {
-    text-decoration: none;
-    display: block;
+  .loaded-content :global(ul) {
+    list-style-position: outside;
+    padding-left: 1.5em;
+  }
+
+  :global(.loaded-content ul) {
+    @apply list-outside pl-6;
+  }
+
+  :global(.loaded-content li) {
+    @apply pl-2 -indent-2;
+  }
+
+  :global(.loaded-content table) {
+    @apply border-collapse w-full;
+  }
+
+  :global(.loaded-content th),
+  :global(.loaded-content td) {
+    @apply border-b border-gray-300 p-2 text-left;
+  }
+
+  :global(.loaded-content tr td) {
+    @apply border-r border-gray-300;
+  }
+
+  :global(.loaded-content tr:nth-child(even)) {
+    @apply bg-gray-100;
   }
 </style>
