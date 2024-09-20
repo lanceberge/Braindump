@@ -1,41 +1,67 @@
 <script lang="ts">
   import type { PageData } from './$types'
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount, afterUpdate } from 'svelte'
   import { browser } from '$app/environment'
+  import { page } from '$app/stores'
 
   export let data: PageData
 
-  interface Heading {
-    id: string
-    text: string
-    level: number
-    element: HTMLElement
+  let headings: Array<{ id: string; text: string; level: number }> = []
+  let activeId = ''
+  let headingElements: HTMLElement[] = []
+
+  function updateHeadings() {
+    headingElements = Array.from(
+      document.querySelectorAll('.loaded-content h1, .loaded-content h2')
+    )
+    headings = headingElements
+      .map((elem) => ({
+        id: elem.id || '',
+        text: elem.textContent || '',
+        level: Number(elem.nodeName.charAt(1))
+      }))
+      .filter((heading) => heading.id !== '') // Filter out headings without IDs
   }
 
-  let headings: Heading[] = []
-
-  function loadHeadings() {
-    const headingElements = Array.from(
-      document.querySelectorAll('.loaded-content h1, .loaded-content h2')
-    ) as HTMLElement[]
-    headings = headingElements.map((elem) => ({
-      id: elem.id,
-      text: elem.textContent || '',
-      level: Number(elem.nodeName.charAt(1)),
-      element: elem
-    }))
+  function handleScroll() {
+    if (browser) {
+      const headingPositions = headingElements.map((elem) => ({
+        id: elem.id,
+        top: elem.getBoundingClientRect().top
+      }))
+      const currentHeading =
+        headingPositions.find((heading) => heading.top > 0) ||
+        headingPositions[headingPositions.length - 1]
+      if (currentHeading) {
+        activeId = currentHeading.id
+      }
+    }
   }
 
   function scrollToHeading(id: string) {
-    const heading = headings.find((h) => h.id === id)
-    if (heading) {
-      heading.element.scrollIntoView({ behavior: 'smooth' })
+    if (browser) {
+      const element = document.getElementById(id)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
     }
   }
 
   onMount(() => {
     if (browser) {
-      loadHeadings()
+      window.addEventListener('scroll', handleScroll)
+    }
+    return () => {
+      if (browser) {
+        window.removeEventListener('scroll', handleScroll)
+      }
+    }
+  })
+
+  afterUpdate(() => {
+    if (browser) {
+      updateHeadings()
+      handleScroll() // Update active heading after content changes
     }
   })
 </script>
@@ -61,7 +87,9 @@
           <a
             href="#{heading.id}"
             class="block {heading.level === 1 ? 'font-bold' : 'pl-4'}
-              text-gray-700 hover:text-blue-600"
+                   {activeId === heading.id
+              ? 'text-blue-600'
+              : 'text-gray-700 hover:text-blue-600'}"
             on:click|preventDefault={(e) => {
               e.preventDefault()
               scrollToHeading(heading.id)
