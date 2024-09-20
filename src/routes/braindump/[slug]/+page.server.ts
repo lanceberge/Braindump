@@ -29,14 +29,24 @@ export const load: PageServerLoad = async ({ params }) => {
     const body: string = await response.Body.transformToString()
 
     // substitute the org-roam id links for links to the routes
-    const content = body
-      .replace(/href="id:[^"]*">([^<]*)/g, (_, p1) => {
-        // convert to lowercase and replace spaces or newlines (the line gets split) with _
-        return `href="/braindump/${p1.replace(/[\s\n]/g, '_')}.html">${p1}`
-      })
-      // Pandoc converts the images to use the local paths. We need to find them
-      // from our s3 bucket. So we insert the S3_IMAGE_PREFIX to the links
-      .replace(/img src="img\//g, `img loading="lazy" src="${S3_IMAGE_PREFIX}`)
+    const content = body.replace(
+      /(href="id:[^"]*">([^<]*))|(<img src="img\/)|(<a href="(https?:\/\/[^"]+)">(.*?)<\/a>)/g,
+      (match, idHref, idContent, imgSrc, extLink, extHref, extContent) => {
+        if (idHref) {
+          // Make id links route internally
+          const newContent = idContent.replace(/[\s\n]/g, '_')
+          return `href="/braindump/${newContent}.html">${idContent}`
+        } else if (imgSrc) {
+          // Add s3 prefix to images
+          return `<img loading="lazy" src="${S3_IMAGE_PREFIX}`
+        } else if (extLink) {
+          // Handle external links
+          return `<a href="${extHref}"> ext:${extContent}</a>`
+        }
+
+        return match
+      }
+    )
 
     const filePrefix: string = ' '
     return {
