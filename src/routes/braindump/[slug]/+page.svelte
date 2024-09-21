@@ -73,34 +73,36 @@
 <div class="flex flex-col lg:flex-row">
   <div class="flex-grow">
     <h1 class="text-4xl font-bold my-3">{data.filePrefix}</h1>
-    <div class="loaded-content max-w-none prose prose-sm sm:prose lg:prose-lg">
+    <div class="loaded-content break-words hyphens-none text-wrap">
       {@html data.content}
     </div>
   </div>
-  <nav
-    class="table-of-contents hidden lg:block sticky top-20 right-4 p-4 bg-white shadow-lg rounded-lg max-w-xs ml-4 h-fit"
-  >
-    <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
-    <ul class="space-y-2">
-      {#each headings as heading}
-        <li>
-          <a
-            href="#{heading.id}"
-            class="block {heading.level === 1 ? 'font-bold' : 'pl-4'}
+  <div class="flex relative lg:block w-64">
+    <nav
+      class="table-of-contents hidden lg:block sticky top-20 right-4 p-4 bg-white shadow-lg rounded-lg ml-4 w-64 h-fit overflow-y-auto"
+    >
+      <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
+      <ul class="space-y-2">
+        {#each headings as heading}
+          <li>
+            <a
+              href="#{heading.id}"
+              class="block {heading.level === 1 ? 'font-bold' : 'pl-4'}
                    {activeId === heading.id
-              ? 'text-blue-600'
-              : 'text-gray-700 hover:text-blue-600'}"
-            on:click|preventDefault={(e) => {
-              e.preventDefault()
-              scrollToHeading(heading.id)
-            }}
-          >
-            {heading.text}
-          </a>
-        </li>
-      {/each}
-    </ul>
-  </nav>
+                ? 'text-blue-600'
+                : 'text-gray-700 hover:text-blue-600'}"
+              on:click|preventDefault={(e) => {
+                e.preventDefault()
+                scrollToHeading(heading.id)
+              }}
+            >
+              {heading.text}
+            </a>
+          </li>
+        {/each}
+      </ul>
+    </nav>
+  </div>
 </div>
 
 <style>
