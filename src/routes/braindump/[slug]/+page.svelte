@@ -70,16 +70,17 @@
   <title>{data.filePrefix}</title>
 </svelte:head>
 
-<div class="flex flex-col lg:flex-row">
-  <div class="flex-grow">
+<div class="p-4 flex lg:flex-row max-w-full">
+  <div class="flex-1">
     <h1 class="text-4xl font-bold my-3">{data.filePrefix}</h1>
     <div class="loaded-content break-words hyphens-none text-wrap">
       {@html data.content}
     </div>
   </div>
-  <div class="flex relative lg:block w-64">
+  <div class="flex relative lg:block flex-shrink-0">
     <nav
-      class="table-of-contents hidden lg:block sticky top-20 right-4 p-4 bg-white shadow-lg rounded-lg ml-4 w-64 h-fit overflow-y-auto"
+      class="table-of-contents hidden lg:block sticky top-20 p-4 bg-white
+             shadow-lg rounded-lg ml-4 w-64 h-fit overflow-y-auto h-screen"
     >
       <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
       <ul class="space-y-2">

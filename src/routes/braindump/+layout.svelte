@@ -19,9 +19,14 @@
   }
 </script>
 
-<div class="flex relative">
+<!-- Main content container -->
+<div class="flex max-w-full">
   <!-- Sidebar for desktop -->
-  <nav class="hidden md:block w-64 bg-gray-100 p-4 overflow-y-auto h-screen sticky top-0">
+  <nav
+    class="hidden md:block w-64 bg-gray-100 p-4
+           overflow-y-auto screen sticky top-0 flex-shrink-0 h-screen"
+  >
+    <!-- List of all pages -->
     <h2 class="text-lg font-semibold mb-4">Pages</h2>
     <ul class="space-y-2">
       {#each data.filenamesAndFilePrefixes as [filename, filePrefix]}
@@ -67,8 +72,5 @@
     </nav>
   {/if}
 
-  <!-- TODO add right padding -->
-  <div class="flex-1 p-4">
-    <slot />
-  </div>
+  <slot />
 </div>
