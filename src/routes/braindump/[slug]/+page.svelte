@@ -71,16 +71,20 @@
 </svelte:head>
 
 <div class="p-4 flex lg:flex-row max-w-full">
-  <div class="flex-1">
+  <!-- HTML Content -->
+  <div class="flex-grow overflow-x-auto">
     <h1 class="text-4xl font-bold my-3">{data.filePrefix}</h1>
-    <div class="loaded-content break-words hyphens-none text-wrap">
+    <div class="loaded-content break-words hyphens-none text-wrap overflow-x-auto max-w-full">
       {@html data.content}
     </div>
   </div>
+
+  <!-- Table of Contents -->
   <div class="flex relative lg:block flex-shrink-0">
     <nav
-      class="table-of-contents hidden lg:block sticky top-20 p-4 bg-white
-             shadow-lg rounded-lg ml-4 w-64 h-fit overflow-y-auto h-screen"
+      class="table-of-contents hidden lg:block sticky p-4 bg-white
+             shadow-lg rounded-lg ml-4 w-64 h-fit overflow-y-auto h-screen
+             flex-shrink-0"
     >
       <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
       <ul class="space-y-2">
@@ -114,6 +118,7 @@
     display: inline;
     max-width: 100%;
   }
+
   .loaded-content :global(li) {
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -122,9 +127,11 @@
     padding-left: 0.5em;
     text-indent: -0.5em;
   }
+
   .loaded-content :global(li p) {
     display: inline;
   }
+
   .loaded-content :global(ul) {
     list-style-position: outside;
     padding-left: 1.5em;
@@ -153,5 +160,14 @@
 
   :global(.loaded-content tr:nth-child(even)) {
     @apply bg-gray-100;
+  }
+  .loaded-content :global(pre) {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .loaded-content :global(code) {
+    white-space: pre;
+    word-wrap: normal;
   }
 </style>
