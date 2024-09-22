@@ -89,7 +89,7 @@
       <li>
         <a
           href="#{heading.id}"
-          class="block {heading.level === 1 ? 'font-bold' : 'pl-4'}
+          class="block {heading.level === 1 ? 'text-lg' : 'pl-4'}
                    {activeId === heading.id
             ? 'text-blue-600'
             : 'text-gray-700 hover:text-blue-600'}"
