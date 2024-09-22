@@ -79,33 +79,31 @@
 </div>
 
 <!-- Table of Contents -->
-<div class="flex hidden lg:block flex-shrink-0 w-64 overflow-y-auto h-fit">
-  <nav
-    class="table-of-contents p-4 bg-white
-             shadow-lg rounded-lg ml-4"
-  >
-    <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
-    <ul class="space-y-2">
-      {#each headings as heading}
-        <li>
-          <a
-            href="#{heading.id}"
-            class="block {heading.level === 1 ? 'font-bold' : 'pl-4'}
+<nav
+  class="hidden lg:block flex-shrink-0 w-64 sticky p-4
+         bg-white overflow-y-auto top-0 h-screen"
+>
+  <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
+  <ul class="space-y-2">
+    {#each headings as heading}
+      <li>
+        <a
+          href="#{heading.id}"
+          class="block {heading.level === 1 ? 'font-bold' : 'pl-4'}
                    {activeId === heading.id
-              ? 'text-blue-600'
-              : 'text-gray-700 hover:text-blue-600'}"
-            on:click|preventDefault={(e) => {
-              e.preventDefault()
-              scrollToHeading(heading.id)
-            }}
-          >
-            {heading.text}
-          </a>
-        </li>
-      {/each}
-    </ul>
-  </nav>
-</div>
+            ? 'text-blue-600'
+            : 'text-gray-700 hover:text-blue-600'}"
+          on:click|preventDefault={(e) => {
+            e.preventDefault()
+            scrollToHeading(heading.id)
+          }}
+        >
+          {heading.text}
+        </a>
+      </li>
+    {/each}
+  </ul>
+</nav>
 
 <style>
   .loaded-content :global(a) {

@@ -24,7 +24,7 @@
   <!-- Sidebar for desktop -->
   <nav
     class="hidden md:block w-64 bg-gray-100 p-4
-           overflow-y-auto screen sticky top-0 flex-shrink-0 h-screen"
+           overflow-y-auto sticky top-0 flex-shrink-0 h-screen"
   >
     <!-- List of all pages -->
     <h2 class="text-lg font-semibold mb-4">Pages</h2>
