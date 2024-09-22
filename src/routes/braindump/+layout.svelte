@@ -20,7 +20,7 @@
 </script>
 
 <!-- Main content container -->
-<div class="flex w-screen">
+<div class="flex flex-row w-screen">
   <!-- Sidebar for desktop -->
   <nav
     class="hidden md:block w-64 bg-gray-100 p-4
