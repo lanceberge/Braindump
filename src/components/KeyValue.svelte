@@ -3,6 +3,7 @@
   export let value: string
 </script>
 
-<p class="text-base">
-  <span class="font-bold">{key}:</span> {value}
+<p class="text-base flex">
+  <span class="font-bold mr-1 flex-shrink-0">{key}:</span>
+  <span>{value}</span>
 </p>

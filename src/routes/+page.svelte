@@ -4,7 +4,7 @@
 
 </script>
 <div class="flex items-center justify-center">
-  <div class="w-64">
+  <div class="w-100 bg-gray-800 text-lime-600 p-8">
     <p>lanceberge</p>
     <p>-----------</p>
     <KeyValue key="Name" value="Lance Bergeron" />
