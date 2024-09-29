@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ params }) => {
           return `<img loading="lazy" src="${S3_IMAGE_PREFIX}`
         } else if (extLink) {
           // Handle external links
-          return `<a href="${extHref}"> ext:${extContent}</a>`
+          return `<a href="${extHref}"> ext: ${extContent}</a>`
         }
 
         return match
