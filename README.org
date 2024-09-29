@@ -19,3 +19,7 @@ AWS S3 -> Buckets -> Bucket -> Edit bucket policy
     ]
 }
   #+END_SRC
+
+#+BEGIN_SRC sh
+aws ecr create-repository --repository-name braindump --region us-east-2
+#+END_SRC
