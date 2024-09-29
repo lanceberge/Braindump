@@ -8,15 +8,15 @@ COPY . .
 RUN npm run build
 
 # Runtime stage
-FROM nginx:1.21-alpine
-RUN apk add --no-cache nodejs
+FROM --platform=linux/amd64 node:18-alpine
+
+RUN apk add --no-cache nginx
 
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
-COPY --from=build /app/build /app
-COPY --from=build /app/node_modules /app/node_modules
-COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app /app
 
 WORKDIR /app
-# EXPOSE 80
 
-CMD nginx && node index.js
+EXPOSE 80
+
+CMD sh -c "nginx && node build"
