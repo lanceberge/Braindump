@@ -5,6 +5,8 @@ COPY package*.json .
 RUN npm ci
 COPY . .
 
+ENV AWS_REGION=us-east-2
+
 RUN npm run build
 
 # Runtime stage
