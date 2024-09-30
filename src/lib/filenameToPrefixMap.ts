@@ -1,11 +1,11 @@
 import { ListObjectsV2Command } from '@aws-sdk/client-s3'
-import { S3_BUCKET, s3Client } from './aws/s3Client'
+import { S3_BUCKET, getS3Client } from './aws/s3Client'
 
 const command = new ListObjectsV2Command({
   Bucket: S3_BUCKET
 })
 
-const response = await s3Client.send(command)
+const response = await getS3Client().send(command)
 const filenames = response.Contents?.map((item) => item.Key) ?? []
 
 export const filenameToFilePrefixMap: Map<string, string> = new Map()

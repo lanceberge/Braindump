@@ -1,7 +1,6 @@
-import { S3_IMAGE_PREFIX, s3Client } from '$lib/aws/s3Client'
+import { S3_BUCKET, S3_IMAGE_PREFIX, getS3Client } from '$lib/aws/s3Client'
 import { GetObjectCommand, type GetObjectCommandOutput } from '@aws-sdk/client-s3'
 import type { PageServerLoad } from './$types'
-import { env } from '$env/dynamic/private'
 import { error } from '@sveltejs/kit'
 import { filenameToFilePrefixMap } from '$lib/filenameToPrefixMap'
 
@@ -14,13 +13,12 @@ export const load: PageServerLoad = async ({ params }) => {
   }
 
   const command = new GetObjectCommand({
-    Bucket: env.AWS_BUCKET_NAME,
-
+    Bucket: S3_BUCKET,
     Key: filename
   })
 
   try {
-    const response: GetObjectCommandOutput = await s3Client.send(command)
+    const response: GetObjectCommandOutput = await getS3Client().send(command)
 
     if (!response.Body) {
       throw error(404, 'File not found')

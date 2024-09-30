@@ -1,4 +1,5 @@
 # Package Managers
 package-lock.json
+package.json
 pnpm-lock.yaml
 yarn.lock
