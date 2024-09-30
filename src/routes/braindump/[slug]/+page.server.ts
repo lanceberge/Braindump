@@ -1,7 +1,7 @@
 import { S3_IMAGE_PREFIX, s3Client } from '$lib/aws/s3Client'
 import { GetObjectCommand, type GetObjectCommandOutput } from '@aws-sdk/client-s3'
 import type { PageServerLoad } from './$types'
-import { AWS_BUCKET_NAME } from '$env/dynamic/private'
+import { env } from '$env/dynamic/private'
 import { error } from '@sveltejs/kit'
 import { filenameToFilePrefixMap } from '$lib/filenameToPrefixMap'
 
@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params }) => {
   }
 
   const command = new GetObjectCommand({
-    Bucket: AWS_BUCKET_NAME,
+    Bucket: env.AWS_BUCKET_NAME,
 
     Key: filename
   })
@@ -48,7 +48,6 @@ export const load: PageServerLoad = async ({ params }) => {
       }
     )
 
-    const filePrefix: string = ' '
     return {
       filePrefix: filenameToFilePrefixMap.get(filename),
       content
