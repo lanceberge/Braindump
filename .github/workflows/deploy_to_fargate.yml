@@ -1,43 +1,67 @@
-- name: checkout code
-  uses: actions/checkout@v3
+name: Build and Deploy to Fargate
 
-- name: Configure AWS Credentials
-  uses: aws-actions/configure-aws-credentials@v1
-  with:
-    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    aws-region: us-east-1
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  workflow_dispatch:
 
-- name: Login to AWS ECR
-  id: login-ecr
-  uses: aws-actions/amazon-ecr-login@v1
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-- name: Download task definition
-  run: |
-    aws ecs describe-task-definition --task-definition braindump_task_definition --query taskDefinition > task-definition.json
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
 
-- name: Build, tag, and push image to ECR
-  id: build-image
-  env:
-    ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    ECR_REPOSITORY: braindump
-    IMAGE_TAG: latest
-  run: |
-    docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-    docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-    echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-- name: Update ECS task definition
-  id: task-definition
-  uses: aws-actions/amazon-ecs-render-task-definition@v1
-  with:
-    task-definition: task-definition.json
-    container-name: braindump-container
-    image: ${{ steps.build-image.outputs.image }}
+      - name: Build, tag, and push image to ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: braindump
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-- name: Deploy AWS ECS task definition
-  uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-  with:
-    task-definition: ${{ steps.task-definition.outputs.task-definition }}
-    service: BraindumpService
-    cluster: BraindumpCluster1
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition braindump_task_definition --query taskDefinition > task-definition.json
+
+      - name: Update ECS task definition
+        id: task-definition
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: braindump-container
+          image: ${{ needs.build.outputs.image }}
+
+      - name: Deploy AWS ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-definition.outputs.task-definition }}
+          service: BraindumpService
+          cluster: BraindumpCluster1
