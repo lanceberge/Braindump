@@ -1,6 +1,6 @@
 import { S3Client } from '@aws-sdk/client-s3'
 
-import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from '$env/static/private'
+import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from '$env/dynamic/private'
 
 export const s3Client = new S3Client({
   region: AWS_REGION,
