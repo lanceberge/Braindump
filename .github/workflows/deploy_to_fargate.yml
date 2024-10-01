@@ -35,7 +35,6 @@ jobs:
           IMAGE_TAG: latest
         run: |
           docker build \
-          --build-arg AWS_REGION=us-east-2 \
           --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
           --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
           -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
