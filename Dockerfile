@@ -1,4 +1,5 @@
 FROM --platform=linux/amd64 node:18-alpine as build
+
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
@@ -12,4 +13,7 @@ ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 
 RUN npm run build
+
+EXPOSE 3000
+
 CMD ["node","build/index.js"]
