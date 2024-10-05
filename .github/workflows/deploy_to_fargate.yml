@@ -54,5 +54,5 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-definition.outputs.task-definition }}
-          service: BraindumpService
+          service: BraindumpAppService
           cluster: BraindumpCluster1
