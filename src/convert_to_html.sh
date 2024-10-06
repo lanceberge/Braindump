@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ORG_FILES=("src/routes/braindump/explanation.org")
-ORG_DIRECTORIES=()
+ORG_FILES="src/routes/braindump/explanation.org"
+ORG_DIRECTORIES=
 
 convert_file() {
     local file="$1"

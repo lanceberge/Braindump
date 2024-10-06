@@ -1,8 +1,1 @@
-* Braindump
-
-  This project includes all of my notes using [[https://www.orgroam.com/][org-roam]], an Emacs package for note-taking.
-
-** How it works
-
-   In my [[https://github.com/lanceberge/org-roam][org-roam]] directory, I add Github Actions Workflow [[https://github.com/lanceberge/org-roam/blob/main/.github/workflows/convert_and_push_to_S3.yml][link]] which detects all modified org files.
-   It converts them to HTML files using pandoc. They then get pushed to an s3 bucket,
+../../../README.org

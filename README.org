@@ -1,25 +1,8 @@
 * Braindump
 
-  WIP Frontend for https://github.com/lanceberge/Braindump
+  This project includes all of my notes using [[https://www.orgroam.com/][org-roam]], an Emacs package for note-taking.
 
-  Goal: To publicize my [[https://www.orgroam.com/][org-roam]] notes with a frontend
+** How it works
 
-  #+BEGIN_SRC json
-AWS S3 -> Buckets -> Bucket -> Edit bucket policy
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "PublicReadGetObjectInDirectory",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::braindump-bucket/img/*"
-        }
-    ]
-}
-  #+END_SRC
-
-#+BEGIN_SRC sh
-aws ecr create-repository --repository-name braindump --region us-east-2
-#+END_SRC
+   In my [[https://github.com/lanceberge/org-roam][org-roam]] directory, I add Github Actions Workflow [[https://github.com/lanceberge/org-roam/blob/main/.github/workflows/convert_and_push_to_S3.yml][link]] which detects all modified org files.
+   It converts them to HTML files using pandoc. They then get pushed to an s3 bucket,
