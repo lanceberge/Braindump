@@ -45,13 +45,11 @@ export const load: PageServerLoad = async ({ params }) => {
       }
     )
 
-    console.log(content)
     return {
       filePrefix: filenameToFilePrefixMap.get(filename),
       content
     }
   } catch (err) {
-    console.log(err)
     throw error(500, 'Error fetching the file')
   }
 }
