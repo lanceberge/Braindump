@@ -8,7 +8,6 @@ export const load: PageServerLoad = async ({ params }) => {
   const filename: string = params.slug
 
   if (!filenameToFilePrefixMap.has(filename)) {
-    // TODO redirect
     throw error(500, 'File not found')
   }
 
@@ -46,6 +45,7 @@ export const load: PageServerLoad = async ({ params }) => {
       }
     )
 
+    console.log(content)
     return {
       filePrefix: filenameToFilePrefixMap.get(filename),
       content
