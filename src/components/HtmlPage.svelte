@@ -127,6 +127,7 @@
     display: inline;
     max-width: 100%;
     @apply text-wrap;
+    @apply break-all;
   }
 
   :global(.loaded-content li) {
