@@ -1,5 +1,3 @@
-* Braindump
-
   This project includes all of my notes using [[https://www.orgroam.com/][org-roam]], an Emacs package for note-taking.
 
 ** How it works
