@@ -6,7 +6,7 @@ ARG AWS_SECRET_ACCESS_KEY
 WORKDIR /app
 COPY package*.json .
 RUN npm ci
-COPY . .
+COPY --link . .
 
 ENV AWS_REGION=us-east-2
 ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
