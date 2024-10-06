@@ -9,7 +9,7 @@ convert_file() {
     local filename=$(basename "$file" .org)
 
     echo "converting file: $file"
-    pandoc -f org -t html -o "$dir/$filename.html" "$file"
+    pandoc -f org -t html -o "$dir/$filename.html" "$file" --wrap=none
 }
 
 # Process specified directories
