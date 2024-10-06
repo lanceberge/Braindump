@@ -69,7 +69,7 @@
           hljs.highlightElement(block as HTMLElement)
         })
       }
-  }
+    }
   })
 </script>
 
@@ -83,10 +83,12 @@
 </svelte:head>
 
 <!-- HTML Content -->
-<div class="flex-1 p-4 overflow-x-auto">
-  <h1 class="text-4xl font-bold my-3">{title}</h1>
-  <div class="loaded-content break-words hyphens-none text-wrap">
-    {@html content}
+<div class="flex-1 overflow-y-auto">
+  <div class="p-4 max-w-full">
+    <h1 class="text-4xl font-bold my-3">{title}</h1>
+    <div class="loaded-content prose overflow-wrap-normal">
+      {@html content}
+    </div>
   </div>
 </div>
 
@@ -124,6 +126,7 @@
     text-overflow: ellipsis;
     display: inline;
     max-width: 100%;
+    @apply text-wrap;
   }
 
   :global(.loaded-content li) {
