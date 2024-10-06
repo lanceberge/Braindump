@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { PageData } from './$types'
-  import { page } from '$app/stores'
   import { onMount } from 'svelte'
   import NavItem from '$components/NavItem.svelte'
 
