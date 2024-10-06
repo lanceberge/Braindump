@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ORG_FILES="src/routes/braindump/explanation.org"
+ORG_FILES="static/braindump/explanation.org"
 ORG_DIRECTORIES=
 
 convert_file() {
