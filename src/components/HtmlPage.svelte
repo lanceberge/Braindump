@@ -121,10 +121,8 @@
 
 <style>
   :global(.loaded-content) {
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: inline;
     max-width: 100%;
     @apply text-wrap;
     @apply break-all;
