@@ -125,7 +125,7 @@
     text-overflow: ellipsis;
     max-width: 100%;
     @apply text-wrap;
-    @apply break-all;
+    @apply break-words;
   }
 
   :global(.loaded-content li) {
