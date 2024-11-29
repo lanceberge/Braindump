@@ -20,7 +20,7 @@
 </script>
 
 <!-- Main content container -->
-<div class="flex flex-row w-screen">
+<div class="flex flex-col md:flex-row w-screen">
   <!-- Sidebar for desktop -->
   <nav
     class="hidden md:block w-64 bg-gray-100 p-4
@@ -38,16 +38,13 @@
   </nav>
 
   <!-- Mobile menu button -->
-  <button
-    class="md:hidden fixed top-4 left-4 z-20 bg-gray-200 p-2 rounded"
-    on:click={toggleMobileMenu}
-  >
+  <button class="md:hidden bg-gray-200 m-2 p-2 w-fit rounded" on:click={toggleMobileMenu}>
     {isMobileMenuOpen ? '✕' : '☰'}
   </button>
 
   <!-- Sidebar for mobile -->
   {#if isMobileMenuOpen}
-    <nav class="md:hidden fixed inset-0 bg-gray-100 p-4 z-10 overflow-y-auto">
+    <nav class="md:hidden bg-gray-100 p-4 z-10 overflow-y-auto">
       <a href="/braindump" class="block">
         <h2 class="text-lg font-semibold mb-4 hover:text-blue-600">Pages</h2>
       </a>
