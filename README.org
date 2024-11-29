@@ -4,7 +4,3 @@
 
    In my [[https://github.com/lanceberge/org-roam][org-roam]] directory, I added a Github Actions Workflow [[https://github.com/lanceberge/org-roam/blob/main/.github/workflows/convert_and_push_to_S3.yml][link]] which detects all modified org files.
    It converts them to HTML files using pandoc then pushes them to S3.
-
-   The [[https://github.com/lanceberge/Braindump][Frontend]] loads the HTML files from S3 and renders them.
-
-   The site is deployed to AWS ECS.
