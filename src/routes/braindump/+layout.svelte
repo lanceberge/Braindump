@@ -23,7 +23,7 @@
 <div class="flex flex-col md:flex-row w-screen">
   <!-- Sidebar for desktop -->
   <nav
-    class="hidden md:block w-64 bg-gray-100 p-4
+    class="hidden md:block w-64 bg-gray-100 py-6 px-8
            overflow-y-auto sticky top-0 flex-shrink-0 h-screen"
   >
     <!-- List of all pages -->

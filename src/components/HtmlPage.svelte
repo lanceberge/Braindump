@@ -84,8 +84,8 @@
 
 <!-- HTML Content -->
 <div class="flex-1 overflow-y-auto">
-  <div class="p-4 max-w-full">
-    <h1 class="text-4xl font-bold my-3">{title}</h1>
+  <div class="py-4 px-6 md:py-6 md:px-8 max-w-full">
+    <h1 class="text-4xl font-bold my-6">{title}</h1>
     <div class="loaded-content prose overflow-wrap-normal">
       {@html content}
     </div>
@@ -94,7 +94,7 @@
 
 <!-- Table of Contents -->
 <nav
-  class="hidden lg:block flex-shrink-0 w-64 sticky p-4
+  class="hidden lg:block flex-shrink-0 w-64 sticky py-4 px-6 md:py-6 md:px-8
          bg-white overflow-y-auto top-0 h-screen"
 >
   <h3 class="text-lg font-bold mb-2">Table of Contents</h3>
@@ -141,6 +141,10 @@
     display: inline;
   }
 
+  :global(.loaded-content p) {
+    @apply py-4;
+  }
+
   :global(.loaded-content ul) {
     list-style-position: outside;
     padding-left: 1.5em;
@@ -184,31 +188,31 @@
   }
 
   :global(.loaded-content h1) {
-    @apply text-3xl my-3;
+    @apply text-3xl my-6 font-bold;
   }
 
   :global(.loaded-content h2) {
-    @apply text-2xl my-3;
+    @apply text-2xl my-6 font-semibold;
   }
 
   :global(.loaded-content h3) {
-    @apply text-xl my-3;
+    @apply text-xl my-6 font-medium;
   }
 
   :global(.loaded-content h4) {
-    @apply text-lg my-3;
+    @apply text-lg my-6;
   }
 
   :global(.loaded-content h5) {
-    @apply text-sm my-3;
+    @apply text-sm my-6;
   }
 
   :global(.loaded-content h6) {
-    @apply my-3;
+    @apply my-6;
   }
 
   :global(.loaded-content li) {
-    @apply my-1;
+    @apply my-2;
   }
 
   :global(.loaded-content a) {
