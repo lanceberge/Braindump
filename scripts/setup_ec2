@@ -7,7 +7,7 @@ sudo usermod -a -G docker ec2-user
 
 sudo yum install nginx -y
 sudo rm /etc/nginx/nginx.conf
-sudo ln -s "/home/ec2-user/$PROJ_NAME/nginx/nginx.conf" /etc/nginx/nginx.conf
+sudo ln -s "/home/ec2-user/$PROJ_NAME/nginx/nginx.conf" /etc/nginx/sites-enabled/"$PROJ_NAME"
 sudu systemctl start nginx
 sudo systemctl enable nginx
 
