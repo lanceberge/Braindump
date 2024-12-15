@@ -1,56 +1,92 @@
-name: Build and Deploy to Fargate
+name: Deploy
 on:
   push:
-    branches: ['main']
-  pull_request:
-    branches: ['main']
-  workflow_dispatch:
+    branches: [ main ]
+
+env:
+  REPO_NAME: Braindump
+  ACTIONS_STEP_DEBUG: true
 
 jobs:
-  build-and-deploy:
+  deploy:
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
+    env:
+      ACTIONS_STEP_DEBUGGING: true
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
+          aws-region: us-east-1
 
-      - name: Login to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push image to ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: braindump
-          IMAGE_TAG: latest
-        run: |
-          docker build \
-          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition --task-definition braindump_task_definition --query taskDefinition > task-definition.json
-
-      - name: Update ECS task definition
-        id: task-definition
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        # TODO make sure this can only run synchronously
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
         with:
-          task-definition: task-definition.json
-          container-name: braindump
-          image: ${{ steps.build-image.outputs.image }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          debug: true
+          script: |
+            cd /home/ec2-user/${{ env.REPO_NAME }}
+            git pull --rebase
 
-      - name: Deploy AWS ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-definition.outputs.task-definition }}
-          service: BraindumpAppService
-          cluster: BraindumpCluster1
+            docker build -t ${{ github.sha }} .
+
+            if [ $(curl -LI http://localhost:8000 -o /dev/null -w '%{http_code}\n' -s) == "200" ]; then
+              NEW_PORT="8001"
+              OLD_PORT="8000"
+            else
+              NEW_PORT="8000"
+              OLD_PORT="8001"
+            fi
+
+            echo "Deploying to port: $NEW_PORT"
+
+            container_id=$(docker run -d -p \
+                $NEW_PORT:8000 -e \
+                AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+                AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+                ${{ github.sha }})
+
+            echo "Running container: $container_id"
+
+            timeout=60
+            healthy=1
+            while [ $timeout -gt 0 ]; do
+              status=$(curl -LI "http://localhost:$NEW_PORT" -o /dev/null -w '%{http_code}\n' -s)
+
+              if [ "$status" == "200" ]; then
+                healthy=0
+                break
+              fi
+              sleep 1
+              timeout=$((timeout-1))
+            done
+
+            if [ $healthy -ne 0 ]; then
+                echo "Container running at port $NEW_PORT was not found to be healthy"
+                echo "Final health check on localhost:$NEW_PORT shows status: $status"
+                docker ps | grep ":$NEW_PORT" | awk '{print $1}' | xargs -r docker rm -f
+                exit 1
+            fi
+
+            # Update nginx config to point to new container
+            sudo sed -i "s/proxy_pass http:\/\/localhost:$OLD_PORT/proxy_pass http:\/\/localhost:$NEW_PORT/g" \
+                /etc/nginx/nginx.conf
+            sudo nginx -s reload
+
+            # Remove old image & container
+            OLD_IMAGE=$(docker ps | grep ":$OLD_PORT" | awk '{print $2}')
+            docker ps | grep ":$OLD_PORT" | awk '{print $1}' | xargs -r docker rm -f
+
+            # Remove old image if it exists and is different from the current image
+            if [ ! -z "$OLD_IMAGE" ]; then
+              docker rmi -f $OLD_IMAGE
+            fi
