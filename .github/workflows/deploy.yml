@@ -50,9 +50,10 @@ jobs:
             echo "Deploying to port: $NEW_PORT"
 
             container_id=$(docker run -d -p \
-                $NEW_PORT:8000 -e \
-                AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-                AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+                $NEW_PORT:3000 \
+                -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+                -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+                -e AWS_REGION=us-east-2 \
                 ${{ github.sha }})
 
             echo "Running container: $container_id"
@@ -60,7 +61,7 @@ jobs:
             timeout=60
             healthy=1
             while [ $timeout -gt 0 ]; do
-              status=$(curl -LI "http://localhost:$NEW_PORT" -o /dev/null -w '%{http_code}\n' -s)
+              status=$(curl -LI "http://localhost:$NEW_PORT/braindump" -o /dev/null -w '%{http_code}\n' -s)
 
               if [ "$status" == "200" ]; then
                 healthy=0
@@ -78,8 +79,8 @@ jobs:
             fi
 
             # Update nginx config to point to new container
-            sudo sed -i "s/proxy_pass http:\/\/localhost:$OLD_PORT/proxy_pass http:\/\/localhost:$NEW_PORT/g" \
-                /etc/nginx/nginx.conf
+            sudo sed -i "s#proxy_pass http://localhost:$OLD_PORT#proxy_pass http://localhost:$NEW_PORT#g" \
+                /home/ec2-user/$REPO_NAME/nginx/nginx.conf
             sudo nginx -s reload
 
             # Remove old image & container
