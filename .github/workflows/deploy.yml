@@ -37,7 +37,7 @@ jobs:
             cd /home/ec2-user/${{ env.REPO_NAME }}
             git pull --rebase
 
-            docker build -t ${{ github.sha }} .
+            docker build -t ${{ github.sha }} . --no-cache
 
             if [ $(curl -LI http://localhost:8000 -o /dev/null -w '%{http_code}\n' -s) == "200" ]; then
               NEW_PORT="8001"
@@ -72,10 +72,10 @@ jobs:
             done
 
             if [ $healthy -ne 0 ]; then
-                echo "Container running at port $NEW_PORT was not found to be healthy"
-                echo "Final health check on localhost:$NEW_PORT shows status: $status"
-                docker ps | grep ":$NEW_PORT" | awk '{print $1}' | xargs -r docker rm -f
-                exit 1
+              echo "Container running at port $NEW_PORT was not found to be healthy"
+              echo "Final health check on localhost:$NEW_PORT shows status: $status"
+              docker ps | grep ":$NEW_PORT" | awk '{print $1}' | xargs -r docker rm -f
+              exit 1
             fi
 
             # Update nginx config to point to new container
@@ -91,3 +91,5 @@ jobs:
             if [ ! -z "$OLD_IMAGE" ]; then
               docker rmi -f $OLD_IMAGE
             fi
+
+            docker system prune -a -f
