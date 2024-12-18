@@ -5,7 +5,6 @@ on:
 
 env:
   REPO_NAME: Braindump
-  ACTIONS_STEP_DEBUG: true
 
 jobs:
   deploy:
@@ -18,51 +17,63 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-        # TODO make sure this can only run synchronously
-      - name: Deploy to EC2
+      - name: Build Container
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
-          debug: true
+          envs: REPO_NAME
           script: |
-            cd /home/ec2-user/${{ env.REPO_NAME }}
+            set -e
+            cd /home/ec2-user/$REPO_NAME
             git pull --rebase
-
             docker build -t ${{ github.sha }} . --no-cache
 
-            if [ $(curl -LI http://localhost:8000 -o /dev/null -w '%{http_code}\n' -s) == "200" ]; then
-              NEW_PORT="8001"
-              OLD_PORT="8000"
+      - name: Run Container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REPO_NAME
+          script: |
+            set -e
+            # Determine which port to use based on current running container
+            current_port=$(docker ps | grep -oP '0.0.0.0:\K\d+' || echo "none")
+            if [ "$current_port" == "8000" ]; then
+              export NEW_PORT="8001"
+              export OLD_PORT="8000"
             else
-              NEW_PORT="8000"
-              OLD_PORT="8001"
+              export NEW_PORT="8000"
+              export OLD_PORT="8001"
             fi
-
             echo "Deploying to port: $NEW_PORT"
 
-            container_id=$(docker run -d -p \
-                $NEW_PORT:3000 \
+            container_id=$(docker run -d \
+                -p $NEW_PORT:8000 \
                 -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
                 -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-                -e AWS_REGION=us-east-2 \
                 ${{ github.sha }})
 
             echo "Running container: $container_id"
+            echo "$NEW_PORT" > /tmp/new_port
+            echo "$OLD_PORT" > /tmp/old_port
+
+      - name: Check Container Health
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            NEW_PORT=$(cat /tmp/new_port)
 
             timeout=60
             healthy=1
             while [ $timeout -gt 0 ]; do
-              status=$(curl -LI "http://localhost:$NEW_PORT/braindump" -o /dev/null -w '%{http_code}\n' -s)
-
+              status=$(curl -LI "http://localhost:${NEW_PORT}/braindump" -o /dev/null -w '%{http_code}\n' -s)
               if [ "$status" == "200" ]; then
                 healthy=0
                 break
@@ -72,24 +83,52 @@ jobs:
             done
 
             if [ $healthy -ne 0 ]; then
-              echo "Container running at port $NEW_PORT was not found to be healthy"
-              echo "Final health check on localhost:$NEW_PORT shows status: $status"
-              docker ps | grep ":$NEW_PORT" | awk '{print $1}' | xargs -r docker rm -f
+              echo "Container running at port ${NEW_PORT} was not found to be healthy"
+              echo "Final health check on localhost:${NEW_PORT} shows status: $status"
+              docker ps | grep ":${NEW_PORT}" | awk '{print $1}' | xargs -r docker rm -f
               exit 1
             fi
 
+      - name: Update Nginx
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REPO_NAME
+          script: |
+            set -e
+            NEW_PORT=$(cat /tmp/new_port)
+            OLD_PORT=$(cat /tmp/old_port)
+
             # Update nginx config to point to new container
-            sudo sed -i "s#proxy_pass http://localhost:$OLD_PORT#proxy_pass http://localhost:$NEW_PORT#g" \
+            sudo sed -i "s/proxy_pass http:\/\/localhost:${OLD_PORT}/proxy_pass http:\/\/localhost:${NEW_PORT}/g" \
                 /home/ec2-user/$REPO_NAME/nginx/nginx.conf
+            sudo nginx -t
             sudo nginx -s reload
 
-            # Remove old image & container
-            OLD_IMAGE=$(docker ps | grep ":$OLD_PORT" | awk '{print $2}')
-            docker ps | grep ":$OLD_PORT" | awk '{print $1}' | xargs -r docker rm -f
+      - name: Cleanup
+        if: always()
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: REPO_NAME
+          script: |
+            docker system prune -a -f --volumes
 
-            # Remove old image if it exists and is different from the current image
-            if [ ! -z "$OLD_IMAGE" ]; then
-              docker rmi -f $OLD_IMAGE
+            # Cleanup the other running container if it hasn't already, ex. if the nginx test fails
+            RUNNING_PORT=$(sed -En 's#proxy_pass http://localhost:(\d+);#\1#' \
+                /home/ec2-user/$REPO_NAME/nginx/nginx.conf)
+
+            if [ "$RUNNING_PORT" == "8000" ]; then
+                export OTHER_PORT=8001
+            else
+                export OTHER_PORT=8000
             fi
 
-            docker system prune -a -f
+            docker ps | grep ":${OTHER_PORT}" | awk '{print $1}' | xargs -r docker rm -f
+
+            rm /tmp/old_port
+            rm /tmp/new_port
