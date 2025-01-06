@@ -4,6 +4,45 @@ import type { PageServerLoad } from './$types'
 import { error } from '@sveltejs/kit'
 import { getFilenameToPrefixMap } from '$lib/filenameToPrefixMap'
 
+function escapeRegex(pattern: string): string {
+  return pattern.replace(/\//g, '\\/')
+}
+
+/**
+ * Substitute the org-roam links so that they route at /braindump
+ * Substitute the images to find the images in S3
+ * Substitute external links so they have an ext: prefix to discern them
+ * from the org-roam links
+ */
+function formatBodyContent(body: string): string {
+  // substitute the org-roam id links for links to the routes
+  const idHrefPattern = 'href="id:.*?">([^<]*)'
+  const imgSrcPattern = escapeRegex('<img src="img/')
+  const extLinkPattern = escapeRegex('<a href="(https?://.*?)">(.*?)</a>')
+
+  const bodyPattern = new RegExp(`(${idHrefPattern})|(${imgSrcPattern})|(${extLinkPattern})`, 'g')
+
+  const content = body.replace(
+    bodyPattern,
+    (match, idHrefMatch, idContent, imgSrcMatch, extLinkMatch, extHref, extContent) => {
+      if (idHrefMatch) {
+        // Make id links route internally
+        const newContent = idContent.replace(/[\s\n]/g, '_')
+        return `href="/braindump/${newContent}.html">${idContent}`
+      } else if (imgSrcMatch) {
+        // Add s3 prefix to images
+        return `<img loading="lazy" src="${S3_IMAGE_PREFIX}`
+      } else if (extLinkMatch) {
+        // Handle external links
+        return `<a href="${extHref}"> ext: ${extContent}</a>`
+      }
+
+      return match
+    }
+  )
+  return content
+}
+
 export const load: PageServerLoad = async ({ params }) => {
   const filename: string = params.slug
 
@@ -26,26 +65,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
 
     const body: string = await response.Body.transformToString()
-
-    // substitute the org-roam id links for links to the routes
-    const content = body.replace(
-      /(href="id:[^"]*">([^<]*))|(<img src="img\/)|(<a href="(https?:\/\/[^"]+)">(.*?)<\/a>)/g,
-      (match, idHref, idContent, imgSrc, extLink, extHref, extContent) => {
-        if (idHref) {
-          // Make id links route internally
-          const newContent = idContent.replace(/[\s\n]/g, '_')
-          return `href="/braindump/${newContent}.html">${idContent}`
-        } else if (imgSrc) {
-          // Add s3 prefix to images
-          return `<img loading="lazy" src="${S3_IMAGE_PREFIX}`
-        } else if (extLink) {
-          // Handle external links
-          return `<a href="${extHref}"> ext: ${extContent}</a>`
-        }
-
-        return match
-      }
-    )
+    const content: string = formatBodyContent(body)
 
     return {
       filePrefix: filenameToFilePrefixMap.get(filename),
