@@ -28,7 +28,7 @@ jobs:
             set -e
             cd /home/ec2-user/$REPO_NAME
             git reset --hard
-            git pull --rebase
+            git pull --rebase --autostash
             docker build -t ${{ github.sha }} . --no-cache
 
       - name: Run Container
